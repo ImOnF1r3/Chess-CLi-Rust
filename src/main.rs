@@ -57,16 +57,12 @@ fn get_input(prompt: &str) -> String {
 
     let mut trimmed_input = input.trim().to_string();
 
-    if trimmed_input.len() == 4 {
+    // Converti automaticamente formato corto in formato lungo SOLO se sembra una mossa
+    if trimmed_input.len() == 4 
+        && trimmed_input.chars().all(|c| c.is_alphanumeric()) 
+        && trimmed_input.chars().nth(0).unwrap().is_ascii_lowercase()
+        && trimmed_input.chars().nth(1).unwrap().is_ascii_digit() {
         trimmed_input.insert(2, '-');
-    }
-
-    if trimmed_input == "r" {
-        println!("Comando 'r' non valido, utilizza il formato delle mosse (es: e2-e4).");
-    } else if trimmed_input == "s" {
-        println!("Comando 's' non valido, utilizza il formato delle mosse (es: e2-e4).");
-    } else if trimmed_input.len() != 5 || trimmed_input.chars().nth(2) != Some('-') {
-        println!("Formato di input errato. Usa ad es. 'e2-e4'.");
     }
 
     trimmed_input
@@ -1154,30 +1150,6 @@ fn end_game_prompt() -> bool {
     input.trim().to_lowercase() == "s"
 }
 
-// Funzione per stampare i comandi disponibili
-fn print_help() {
-    clear_console();
-    println!("Comandi disponibili:");
-    println!("  help                     - Mostra questo elenco di comandi.");
-    println!("  enemy on                 - Attiva il nemico controllato dall'AI.");
-    println!("  enemy off                - Disattiva il nemico controllato dall'AI.");
-    println!("  enemy set [white|black]  - Imposta il nemico su bianco o nero.");
-    println!("  set depth [n]            - Imposta la profondità della ricerca AI (default: 5).");
-    println!("  set aggressiveness [n]   - Imposta il livello di aggressività dell'AI.");
-    println!("  0-0                      - Arrocco corto.");
-    println!("  0-0-0                    - Arrocco lungo.");
-    println!("  show piece               - Mostra/nasconde i pezzi catturati.");
-    println!("  show fen                 - Mostra/nasconde la posizione FEN.");
-    println!("  show suggested move      - Mostra/nasconde la mossa suggerita da Stockfish.");
-    println!("  import fen [FEN]         - Importa una posizione da una stringa FEN.");
-    println!("  exit                     - Esci dal gioco.");
-    println!("  [e2-e4] o [e2e4]         - Esegui una mossa (usa il formato 'e2-e4').");
-    println!("\nPremi Invio per continuare...");
-
-    let input = get_input(": ");
-    print!("{} ", input.trim());
-}
-
 fn main() {
     loop {
         let mut scacchiera: [[i32; 8]; 8] = [[0; 8]; 8];
@@ -1293,38 +1265,26 @@ fn main() {
             if input.trim() == "enemy on" {
                 enemy_active = true;
                 println!("Nemico attivato.");
-            } else if input == "help" {
-                println!("Comandi disponibili:");
+            } else if input.trim() == "help" {
+                println!("\n=== COMANDI DISPONIBILI ===");
                 println!("  help                     - Mostra questo elenco di comandi.");
                 println!("  enemy on                 - Attiva il nemico controllato dall'AI.");
                 println!("  enemy off                - Disattiva il nemico controllato dall'AI.");
                 println!("  enemy set [white|black]  - Imposta il nemico su bianco o nero.");
-                println!("  set depth [n]            - Imposta la profondità della ricerca AI (default: 5).");
-                println!(
-                    "  set aggressiveness [n]   - Imposta il livello di aggressività dell'AI."
-                );
+                println!("  set depth [n]            - Imposta la profondità della ricerca AI.");
+                println!("  set aggressiveness [n]   - Imposta il livello di aggressività dell'AI.");
                 println!("  0-0                      - Arrocco corto.");
                 println!("  0-0-0                    - Arrocco lungo.");
                 println!("  show piece               - Mostra/nasconde i pezzi catturati.");
                 println!("  show fen                 - Mostra/nasconde la posizione FEN.");
-                println!(
-                    "  show suggested move      - Mostra/nasconde la mossa suggerita da Stockfish."
-                );
-                println!("  import fen [FEN]         - Importa una posizione da una stringa FEN.");
+                println!("  show suggested move      - Mostra/nasconde la mossa suggerita.");
+                println!("  import fen [FEN]         - Importa una posizione FEN.");
                 println!("  exit                     - Esci dal gioco.");
-                println!("  [e2-e4] o [e2e4]         - Esegui una mossa (usa il formato 'e2-e4').");
-                println!("\nPremi Invio per continuare...");
-
-                // Qui il programma aspetta che l'utente prema invio
-                println!("Premi invio per continuare...");
-
-                let start = Instant::now();
-                println!("Attendo 3 secondi...");
-
-                // Attendi finché non passano 3 secondi
-                while Instant::now() - start < Duration::from_secs(3) {
-                    // Ciclo attivo
-                }
+                println!("  [e2-e4] o [e2e4]         - Esegui una mossa.");
+                println!("===========================\n");
+                println!("Premi Invio per tornare alla partita...");
+                let mut dummy = String::new();
+                io::stdin().read_line(&mut dummy).expect("Errore");
             } else if input.trim() == "enemy off" {
                 enemy_active = false;
                 println!("Nemico disattivato.");
