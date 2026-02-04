@@ -233,6 +233,17 @@ fn pz_move(
 
                 matrix[e_r as usize][e_c as usize] = matrix[s_r as usize][s_c as usize];
                 matrix[s_r as usize][s_c as usize] = 0;
+                
+                if (id_piece == 60 || id_piece == 61) && m_c.abs() == 2 {
+                    let row = e_r as usize;
+                    if e_c == 6 { // Arrocco Corto (lato G)
+                        matrix[row][5] = matrix[row][7]; // Muove Torre da H a F
+                        matrix[row][7] = 0;
+                    } else if e_c == 2 { // Arrocco Lungo (lato C)
+                        matrix[row][3] = matrix[row][0]; // Muove Torre da A a D
+                        matrix[row][0] = 0;
+                    }
+                }
 
                 if (id_piece == 10 || id_piece == 11) && (s_r - e_r).abs() == 2 {
                     *en_passant_row = (s_r + e_r) / 2;
@@ -469,6 +480,9 @@ fn check_piece(
             // King (Re)
             if mc.abs() <= 1 && mr.abs() <= 1 {
                 return true;
+            }
+            if mr == 0 && mc.abs() == 2 {
+                return true; 
             }
         }
         _ => {
